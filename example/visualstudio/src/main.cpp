@@ -38,13 +38,13 @@ int main()
 	Example example;
 	event += std::bind(&Example::Print, example, std::placeholders::_1, std::placeholders::_2); // class member function
 
-	event.Invoke(1,5);
+	event(1,5);
 
 
 	std::cout<<std::endl << "-----Remove Delegate-----" << std::endl;
 	event -= (sum_fuc_delegate_id);
 
-	event.Invoke(1, 5);
+	event(1, 5);
 
 	return 0;
 }

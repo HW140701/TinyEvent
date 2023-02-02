@@ -140,6 +140,34 @@ namespace stubbornhuang
 			return true;
 		}
 
+		void operator() (Args ...args)
+		{
+#ifdef EVENT_THREAD_SAFETY
+			std::lock_guard<std::mutex> guard_mutex(m_EventMutex);
+#endif // EVENT_THREAD_SAFETY
+
+			for (const auto& key : m_Delegates)
+			{
+				key.second->Invoke(args...);
+			}
+		}
+
+		bool operator() (int delegate_id, Args ...args)
+		{
+#ifdef EVENT_THREAD_SAFETY
+			std::lock_guard<std::mutex> guard_mutex(m_EventMutex);
+#endif // EVENT_THREAD_SAFETY
+
+			if (m_Delegates.count(delegate_id) == 0)
+				return false;
+
+			m_Delegates[delegate_id]->Invoke(args...);
+
+
+			return true;
+		}
+
+
 	private:
 		std::map<int, std::shared_ptr<Delegate>> m_Delegates;
 
