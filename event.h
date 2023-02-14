@@ -79,11 +79,11 @@ namespace stubbornhuang
 			std::shared_ptr<Delegate> pDelegate = std::make_shared<Delegate>(DELEGATE_ID, std_function_func);
 
 #ifdef EVENT_THREAD_SAFETY
-			std::lock_guard<std::mutex> guard_mutex(m_EventMutex);
+			std::lock_guard<std::mutex> guard_mutex(m_event_mutex);
 #endif // EVENT_THREAD_SAFETY
 
 
-			m_Delegates.insert(std::pair<int, std::shared_ptr<Delegate>>(DELEGATE_ID, pDelegate));
+			m_delegates.insert(std::pair<int, std::shared_ptr<Delegate>>(DELEGATE_ID, pDelegate));
 
 			return DELEGATE_ID++;
 		}
@@ -91,13 +91,13 @@ namespace stubbornhuang
 		bool RemoveDelegate(int delegate_id)
 		{
 #ifdef EVENT_THREAD_SAFETY
-			std::lock_guard<std::mutex> guard_mutex(m_EventMutex);
+			std::lock_guard<std::mutex> guard_mutex(m_event_mutex);
 #endif // EVENT_THREAD_SAFETY
 
-			if (m_Delegates.count(delegate_id) == 0)
+			if (m_delegates.count(delegate_id) == 0)
 				return false;
 
-			m_Delegates.erase(delegate_id);
+			m_delegates.erase(delegate_id);
 
 			return true;
 		}
@@ -116,10 +116,10 @@ namespace stubbornhuang
 		void Invoke(Args ...args)
 		{
 #ifdef EVENT_THREAD_SAFETY
-			std::lock_guard<std::mutex> guard_mutex(m_EventMutex);
+			std::lock_guard<std::mutex> guard_mutex(m_event_mutex);
 #endif // EVENT_THREAD_SAFETY
 
-			for (const auto& key : m_Delegates)
+			for (const auto& key : m_delegates)
 			{
 				key.second->Invoke(args...);
 			}
@@ -128,13 +128,13 @@ namespace stubbornhuang
 		bool Invoke(int delegate_id, Args ...args)
 		{
 #ifdef EVENT_THREAD_SAFETY
-			std::lock_guard<std::mutex> guard_mutex(m_EventMutex);
+			std::lock_guard<std::mutex> guard_mutex(m_event_mutex);
 #endif // EVENT_THREAD_SAFETY
 
-			if (m_Delegates.count(delegate_id) == 0)
+			if (m_delegates.count(delegate_id) == 0)
 				return false;
 
-			m_Delegates[delegate_id]->Invoke(args...);
+			m_delegates[delegate_id]->Invoke(args...);
 
 
 			return true;
@@ -143,10 +143,10 @@ namespace stubbornhuang
 		void operator() (Args ...args)
 		{
 #ifdef EVENT_THREAD_SAFETY
-			std::lock_guard<std::mutex> guard_mutex(m_EventMutex);
+			std::lock_guard<std::mutex> guard_mutex(m_event_mutex);
 #endif // EVENT_THREAD_SAFETY
 
-			for (const auto& key : m_Delegates)
+			for (const auto& key : m_delegates)
 			{
 				key.second->Invoke(args...);
 			}
@@ -155,13 +155,13 @@ namespace stubbornhuang
 		bool operator() (int delegate_id, Args ...args)
 		{
 #ifdef EVENT_THREAD_SAFETY
-			std::lock_guard<std::mutex> guard_mutex(m_EventMutex);
+			std::lock_guard<std::mutex> guard_mutex(m_event_mutex);
 #endif // EVENT_THREAD_SAFETY
 
-			if (m_Delegates.count(delegate_id) == 0)
+			if (m_delegates.count(delegate_id) == 0)
 				return false;
 
-			m_Delegates[delegate_id]->Invoke(args...);
+			m_delegates[delegate_id]->Invoke(args...);
 
 
 			return true;
@@ -169,11 +169,11 @@ namespace stubbornhuang
 
 
 	private:
-		std::map<int, std::shared_ptr<Delegate>> m_Delegates;
+		std::map<int, std::shared_ptr<Delegate>> m_delegates;
 
 #ifdef EVENT_THREAD_SAFETY
 
-		std::mutex m_EventMutex;
+		std::mutex m_event_mutex;
 #endif // EVENT_THREAD_SAFETY
 	};
 }
