@@ -167,6 +167,15 @@ namespace stubbornhuang
 			return true;
 		}
 
+		int GetDelegateSize()
+		{
+#ifdef EVENT_THREAD_SAFETY
+			std::lock_guard<std::mutex> guard_mutex(m_event_mutex);
+#endif // EVENT_THREAD_SAFETY
+
+			return m_delegates.size();
+		}
+
 
 	private:
 		std::map<int, std::shared_ptr<Delegate>> m_delegates;
